@@ -325,7 +325,7 @@ class PGoApi:
             else:
                 self.log.info("No nearby pokemon. Can't snipe!")
                 return False
-            
+
         finally:
             self.set_position(curr_lat, curr_lng, 0.0)
             self.send_update_pos()

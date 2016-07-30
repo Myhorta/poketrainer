@@ -38,7 +38,6 @@ import socket
 from time import sleep
 
 import gevent
-import zerorpc
 from geopy.geocoders import GoogleV3
 
 from listener import Listener
@@ -127,25 +126,6 @@ def main(position=None):
     # provide player position on the earth
     api.set_position(*position)
 
-    desc_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".listeners")
-    sock_port = 0
-    s = socket.socket()
-    s.bind(("", 0))  # let the kernel find a free port
-    sock_port = s.getsockname()[1]
-    s.close()
-    data = {}
-
-    if os.path.isfile(desc_file):
-        with open(desc_file, 'r+') as f:
-            data = f.read()
-            data = json.loads(data.encode() if len(data) > 0 else '{}')
-    data[config["username"]] = sock_port
-    with open(desc_file, "w+") as f:
-        f.write(json.dumps(data, indent=2))
-
-    s = zerorpc.Server(Listener(api))
-    s.bind("tcp://127.0.0.1:%i" % sock_port) # the free port should still be the same
-    gevent.spawn(s.run)
 
     # retry login every 30 seconds if any errors
     while not api.login(config["auth_service"], config["username"], config["password"]):
